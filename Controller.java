@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,7 +93,11 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
     protected static ConcurrentMap<OFType, ListenerDispatcher<OFType,IOFMessageListener>> messageListeners;
     protected static ConcurrentLinkedQueue<IControllerCompletionListener> completionListeners;
     
+    
+    // Khai bao them
     protected static HashMap<String,List<String>> eliPort =  new HashMap();
+    static List<String> listSwPort = new ArrayList<String>();
+    List<String> templist = new ArrayList<String>();
     //protected static Set<Map.Entry<String,ArrayList<String>>> setHashMap = eliPort.entrySet();
     /* 
      * The controllerNodeIPsCache maps Controller IDs to their IP address.
@@ -353,10 +358,12 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
      * should be dispatched and which shouldn't
      */
     
-    /*public Set<Entry<String, ArrayList<String>>> getValue()
+    
+    // Tao ham lay gia tri cho module minh viet
+    public static List<String> getValue()
     {
-    	return setHashMap;
-    }*/
+    	return listSwPort;
+    }
     
     @Override
     public void handleMessage(IOFSwitch sw, OFMessage m,
@@ -420,12 +427,7 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
                     }
                     if (eth.getPayload() instanceof LLDP)
 	    			{
-	    				//System.out.println("4444444444444444444444444444");
 	    				LLDP lldp =  (LLDP) eth.getPayload();
-	    				/*byte[] chId = lldp.getChassisId().getValue();
-	    				String ch = new String(chId);
-	    				byte[] portId = lldp.getPortId().getValue();
-	    				String po = new String(portId);*/
 	    				
 	    				LLDPTLV chId = lldp.getChassisId();
 	    				LLDPTLV portId = lldp.getPortId();
@@ -433,17 +435,23 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
 	    				String po = portId.toString();	    				    				
 	    				String ch1 = ch.replaceAll("type=1 length=7 value=400000", "");
 	    				String po1 = po.replaceAll("type=2 length=3 value=20", "");
-	    				List<String> values = new ArrayList<String>();
+	    				List<String> values = new ArrayList<String>();	    				   				
 	    				values.add(po1);
-						//eliPort.put(ch1, po1);
-						//System.out.println(setHashMap);
-	    				eliPort.put(ch1,values);
+						eliPort.put(ch1,values);
+						List <String> listtemp = new ArrayList<String>();
 	    				Iterator<Map.Entry<String,List<String>>> iterator = eliPort.entrySet().iterator();
 	    				while (iterator.hasNext())
 	    				{
-	    					System.out.println(iterator.next());
+	    					//System.out.println(iterator.next());
+	    					String temp = iterator.next().toString();
+	    					listtemp.add(temp);	    					
+	    					for (String elements : listtemp)
+	    						if (!listSwPort.contains(elements))
+	    						{
+	    							listSwPort.add(elements);
+	    						}	    					
 	    				}
-	    			
+	    				//System.out.println(listSwPort);
 	    			}
                     // Get the starting time (overall and per-component) of
                     // the processing chain for this packet if performance
