@@ -98,6 +98,8 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
     protected static HashMap<String,List<String>> eliPort =  new HashMap();
     static List<String> listSwPort = new ArrayList<String>();
     List<String> templist = new ArrayList<String>();
+    List<Integer> countList = new ArrayList<Integer>();
+    int counttemp = 0;
     //protected static Set<Map.Entry<String,ArrayList<String>>> setHashMap = eliPort.entrySet();
     /* 
      * The controllerNodeIPsCache maps Controller IDs to their IP address.
@@ -427,8 +429,9 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
                     }
                     if (eth.getPayload() instanceof LLDP)
 	    			{
-	    				LLDP lldp =  (LLDP) eth.getPayload();
-	    				
+                    	int a = 100;
+                    	int b = 50;
+	    				LLDP lldp =  (LLDP) eth.getPayload();	    				
 	    				LLDPTLV chId = lldp.getChassisId();
 	    				LLDPTLV portId = lldp.getPortId();
 	    				String ch = chId.toString();
@@ -442,16 +445,46 @@ public class Controller implements IFloodlightProviderService, IStorageSourceLis
 	    				Iterator<Map.Entry<String,List<String>>> iterator = eliPort.entrySet().iterator();
 	    				while (iterator.hasNext())
 	    				{
-	    					//System.out.println(iterator.next());
 	    					String temp = iterator.next().toString();
+	    					if (listtemp.size() == a)
+	    					{
+	    						listtemp.clear();
+	    					}
 	    					listtemp.add(temp);	    					
 	    					for (String elements : listtemp)
-	    						if (!listSwPort.contains(elements))
+	    					{
+	    						boolean check = listSwPort.contains(elements);
+	    						if (check == false)
 	    						{
 	    							listSwPort.add(elements);
-	    						}	    					
-	    				}
-	    				//System.out.println(listSwPort);
+	    							int positionnew = listSwPort.indexOf(elements);
+	    							countList.add(positionnew,b);
+	    	    					counttemp = countList.size();
+	    						}
+	    						else	
+	    						{
+	    							int position = listSwPort.indexOf(elements);
+		    						counttemp = countList.size();
+		    						System.out.println("----------------------------------------------");
+		    						for (int i=0; i<counttemp; i++)
+		    						{
+		    							int j = countList.get(i);
+		    							j=j-1;
+		    							countList.set(i,j);
+		    						}
+		    						countList.set(position,b);
+		    						//System.out.println("Reset vi tri : " + position + " roi nha");
+		    						int index = -1;
+		    						while ((index = countList.indexOf(0)) >= 0)
+		    						{
+				    						System.out.println("Deleted element: "+countList.get(index));
+				    						countList.remove(index);
+				    						listSwPort.remove(index);
+				    				}
+				    				
+	    						}   						
+	    					}	    						    					
+	    				}   				
 	    			}
                     // Get the starting time (overall and per-component) of
                     // the processing chain for this packet if performance
